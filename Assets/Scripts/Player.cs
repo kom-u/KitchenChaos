@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace KitchenChaos {
@@ -12,6 +13,38 @@ namespace KitchenChaos {
         }
 
         private Vector3 lastInteractDirection;
+
+
+
+        private void Start() {
+            gameInput.OnInteractAction += GameInput_OnInteractAction;
+        }
+
+
+
+        private void GameInput_OnInteractAction(object sender, EventArgs e) {
+            Vector2 inputVector = gameInput.GetMovementInputVector();
+
+            Vector3 moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
+
+            if (moveDirection != Vector3.zero)
+                lastInteractDirection = moveDirection;
+
+            float interactDistance = 2f;
+            bool isCanInteract = Physics.Raycast(
+                transform.position,
+                lastInteractDirection,
+                out RaycastHit hitInfo,
+                interactDistance,
+                interactLayerMask
+            );
+
+            if (isCanInteract) {
+                if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter)) {
+                    clearCounter.Interact();
+                }
+            }
+        }
 
         private void Update() {
             HandleMovement();
@@ -78,8 +111,8 @@ namespace KitchenChaos {
 
             Vector3 moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
-            if (moveDirection == Vector3.zero)
-                moveDirection = lastInteractDirection;
+            if (moveDirection != Vector3.zero)
+                lastInteractDirection = moveDirection;
 
             float interactDistance = 2f;
             bool isCanInteract = Physics.Raycast(
@@ -91,8 +124,8 @@ namespace KitchenChaos {
             );
 
             if (isCanInteract) {
-                if(hitInfo.transform.TryGetComponent(out ClearCounter clearCounter)){
-                    clearCounter.Interact();
+                if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter)) {
+                    // clearCounter.Interact();
                 }
             }
         }
