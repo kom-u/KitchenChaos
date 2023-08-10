@@ -8,13 +8,40 @@ namespace KitchenChaos {
     public class ClearCounter : MonoBehaviour {
         [SerializeField] private Transform topPoint;
         [SerializeField] private KitchenObjectSO kitchenObjectSO;
+        private KitchenObject kitchenObject;
+
+
+
+        public KitchenObject KitchenObject {
+            get => kitchenObject;
+            set => kitchenObject = value;
+        }
 
 
 
         public void Interact() {
-            Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab, topPoint.position, Quaternion.identity);
+            if (kitchenObject != null) return;
 
-            Debug.Log(kitchenObjectTransform.GetComponent<KitchenObject>().KitchenObjectSO);
+            Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab, topPoint.position, Quaternion.identity);
+            kitchenObjectTransform.GetComponent<KitchenObject>().ClearCounter = this;
+        }
+
+
+
+        public Transform GetTopPoint() {
+            return topPoint;
+        }
+
+
+
+        public void ClearKitchenObject() {
+            kitchenObject = null;
+        }
+
+
+
+        public bool IsHasKitchenObject() {
+            return kitchenObject != null;
         }
     }
 }
