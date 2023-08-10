@@ -1,13 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace KitchenChaos
-{
-    public class Player : Singleton<Player>
-    {
+namespace KitchenChaos {
+    public class Player : Singleton<Player> {
         public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
-        public class OnSelectedCounterChangedEventArgs : EventArgs
-        {
+        public class OnSelectedCounterChangedEventArgs : EventArgs {
             public ClearCounter selectedCounter;
         }
 
@@ -16,8 +13,7 @@ namespace KitchenChaos
 
         [SerializeField] private float moveSpeed = 5f;
         private bool isWalking;
-        public bool IsWalking
-        {
+        public bool IsWalking {
             get => isWalking;
         }
 
@@ -28,15 +24,13 @@ namespace KitchenChaos
 
 
 
-        private void Start()
-        {
+        private void Start() {
             gameInput.OnInteractAction += GameInput_OnInteractAction;
         }
 
 
 
-        private void GameInput_OnInteractAction(object sender, EventArgs e)
-        {
+        private void GameInput_OnInteractAction(object sender, EventArgs e) {
             Vector2 inputVector = gameInput.GetMovementInputVector();
 
             Vector3 moveDirection = new(inputVector.x, 0f, inputVector.y);
@@ -53,17 +47,14 @@ namespace KitchenChaos
                 interactLayerMask
             );
 
-            if (isCanInteract)
-            {
-                if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter))
-                {
+            if (isCanInteract) {
+                if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter)) {
                     clearCounter.Interact();
                 }
             }
         }
 
-        private void Update()
-        {
+        private void Update() {
             HandleMovement();
             HandleInteraction();
         }
@@ -71,8 +62,7 @@ namespace KitchenChaos
 
 
         // FIXME: refactor later
-        private void HandleMovement()
-        {
+        private void HandleMovement() {
             Vector2 inputVector = gameInput.GetMovementInputVector();
 
             Vector3 moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
@@ -90,8 +80,7 @@ namespace KitchenChaos
             );
 
 
-            if (!isCanMove)
-            {
+            if (!isCanMove) {
                 moveDirection = new Vector3(inputVector.x, 0f, 0f);
                 isCanMove = !Physics.CapsuleCast(
                     transform.position, // lower point
@@ -101,8 +90,7 @@ namespace KitchenChaos
                     moveDistance // distance
                 );
 
-                if (!isCanMove)
-                {
+                if (!isCanMove) {
                     moveDirection = new Vector3(0f, 0f, inputVector.y);
                     isCanMove = !Physics.CapsuleCast(
                         transform.position, // lower point
@@ -126,8 +114,7 @@ namespace KitchenChaos
 
 
 
-        private void HandleInteraction()
-        {
+        private void HandleInteraction() {
             Vector2 inputVector = gameInput.GetMovementInputVector();
 
             Vector3 moveDirection = new(inputVector.x, 0f, inputVector.y);
@@ -144,34 +131,25 @@ namespace KitchenChaos
                 interactLayerMask
             );
 
-            if (isCanInteract)
-            {
-                if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter))
-                {
+            if (isCanInteract) {
+                if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter)) {
                     // clearCounter.Interact();
-                    if (clearCounter != selectedCounter)
-                    {
+                    if (clearCounter != selectedCounter) {
                         SetSelectedCounter(clearCounter);
                     }
-                }
-                else
-                {
+                } else {
                     SetSelectedCounter(null);
                 }
-            }
-            else
-            {
+            } else {
                 SetSelectedCounter(null);
             }
         }
 
 
 
-        private void SetSelectedCounter(ClearCounter selectedCounter)
-        {
+        private void SetSelectedCounter(ClearCounter selectedCounter) {
             this.selectedCounter = selectedCounter;
-            OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs
-            {
+            OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs {
                 selectedCounter = this.selectedCounter
             });
         }
