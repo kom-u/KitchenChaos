@@ -5,32 +5,33 @@ using UnityEngine;
 namespace KitchenChaos {
     public class KitchenObject : MonoBehaviour {
         [SerializeField] private KitchenObjectSO kitchenObjectSO;
-        private ClearCounter clearCounter;
+        private IKitchenObjectParent kitchenObjectParent;
 
 
 
-        public KitchenObjectSO KitchenObjectSO {
-            get => kitchenObjectSO;
+        public KitchenObjectSO GetKitchenObjectSO() {
+            return kitchenObjectSO;
         }
 
 
 
-        public ClearCounter ClearCounter {
-            get => clearCounter;
-            set
-            {
-                if (clearCounter != null)
-                    clearCounter.ClearKitchenObject();
+        public IKitchenObjectParent GetKitchenObjectParent() {
+            return kitchenObjectParent;
+        }
 
-                clearCounter = value;
 
-                if (clearCounter.IsHasKitchenObject())
-                    Debug.LogError("Counter already has a KitchenObject!");
-                clearCounter.KitchenObject = this;
+        public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent) {
+            if (this.kitchenObjectParent != null)
+                this.kitchenObjectParent.ClearKitchenObject();
 
-                transform.parent = clearCounter.GetTopPoint();
-                transform.localPosition = Vector3.zero;
-            }
+            this.kitchenObjectParent = kitchenObjectParent;
+
+            if (this.kitchenObjectParent.IsHasKitchenObject())
+                Debug.LogError("IKitchenObjectParent already has a KitchenObject!");
+            this.kitchenObjectParent.SetKitchenObject(this);
+
+            transform.parent = this.kitchenObjectParent.GetKitchenObjectFollowTransform();
+            transform.localPosition = Vector3.zero;
         }
 
 

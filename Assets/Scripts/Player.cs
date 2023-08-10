@@ -2,26 +2,29 @@ using System;
 using UnityEngine;
 
 namespace KitchenChaos {
-    public class Player : Singleton<Player> {
+    public class Player : Singleton<Player>, IKitchenObjectParent {
         public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
         public class OnSelectedCounterChangedEventArgs : EventArgs {
             public ClearCounter selectedCounter;
         }
 
+        [Header("General")]
         [SerializeField] private GameInput gameInput;
         [SerializeField] private LayerMask interactLayerMask;
 
+        [Header("Property")]
         [SerializeField] private float moveSpeed = 5f;
         private bool isWalking;
         public bool IsWalking {
             get => isWalking;
         }
 
-
-
         private Vector3 lastInteractDirection;
         private ClearCounter selectedCounter;
 
+        [Header("Object Hold")]
+        [SerializeField] private Transform kitchenObjectHoldPoint;
+        private KitchenObject kitchenObject;
 
 
         private void Start() {
@@ -31,27 +34,10 @@ namespace KitchenChaos {
 
 
         private void GameInput_OnInteractAction(object sender, EventArgs e) {
-            Vector2 inputVector = gameInput.GetMovementInputVector();
 
-            Vector3 moveDirection = new(inputVector.x, 0f, inputVector.y);
+            if (selectedCounter == null) return;
 
-            if (moveDirection != Vector3.zero)
-                lastInteractDirection = moveDirection;
-
-            float interactDistance = 2f;
-            bool isCanInteract = Physics.Raycast(
-                transform.position,
-                lastInteractDirection,
-                out RaycastHit hitInfo,
-                interactDistance,
-                interactLayerMask
-            );
-
-            if (isCanInteract) {
-                if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter)) {
-                    clearCounter.Interact();
-                }
-            }
+            selectedCounter.Interact(this);
         }
 
         private void Update() {
@@ -133,10 +119,8 @@ namespace KitchenChaos {
 
             if (isCanInteract) {
                 if (hitInfo.transform.TryGetComponent(out ClearCounter clearCounter)) {
-                    // clearCounter.Interact();
-                    if (clearCounter != selectedCounter) {
+                    if (clearCounter != selectedCounter)
                         SetSelectedCounter(clearCounter);
-                    }
                 } else {
                     SetSelectedCounter(null);
                 }
@@ -152,6 +136,26 @@ namespace KitchenChaos {
             OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs {
                 selectedCounter = this.selectedCounter
             });
+        }
+
+        public KitchenObject GetKitchenObject() {
+            return kitchenObject;
+        }
+
+        public void SetKitchenObject(KitchenObject kitchenObject) {
+            this.kitchenObject = kitchenObject;
+        }
+
+        public Transform GetKitchenObjectFollowTransform() {
+            return kitchenObjectHoldPoint;
+        }
+
+        public void ClearKitchenObject() {
+            kitchenObject = null;
+        }
+
+        public bool IsHasKitchenObject() {
+            return kitchenObject != null;
         }
     }
 }
